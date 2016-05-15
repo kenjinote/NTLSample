@@ -2,15 +2,15 @@
 
 #ifdef _WIN64
 #ifdef _DEBUG
-#pragma comment(lib, "WinNTL-9_8_1\\x64\\Debug\\WinNTL-9_8_1.lib")
+#pragma comment(lib, "x64\\Debug\\WinNTL-9_8_1.lib")
 #else
-#pragma comment(lib, "WinNTL-9_8_1\\x64\\Release\\WinNTL-9_8_1.lib")
+#pragma comment(lib, "x64\\Release\\WinNTL-9_8_1.lib")
 #endif
 #else
 #ifdef _DEBUG
-#pragma comment(lib, "WinNTL-9_8_1\\Debug\\WinNTL-9_8_1.lib")
+#pragma comment(lib, "Debug\\WinNTL-9_8_1.lib")
 #else
-#pragma comment(lib, "WinNTL-9_8_1\\Release\\WinNTL-9_8_1.lib")
+#pragma comment(lib, "Release\\WinNTL-9_8_1.lib")
 #endif
 #endif
 
