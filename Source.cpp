@@ -21,47 +21,103 @@ using namespace NTL;
 
 TCHAR szClassName[] = TEXT("Window");
 
-long len(const ZZ& n)
+long witness(const ZZ& n, const ZZ& x)
 {
-	long i;
-	ZZ num;
-	num = abs(n);
-	for (i = 0; num != 0; i++)num /= 10;
-	return (n > 0) ? i : i + 1;
+	ZZ m, y, z;
+	long j, k;
+	if (x == 0)return 0;
+	m = n - 1;
+	k = MakeOdd(m);
+	z = PowerMod(x, m, n);//z=x^m%n
+	if (z == 1)return 0;
+	j = 0;
+	do
+	{
+		y = z;
+		z = (y*y) % n;
+		j++;
+	} while (j<k&&z != 1);
+	return z != 1 || y != n - 1;
 }
 
-void zztostr(const ZZ& n, char* str, int len)
+long PrimeTest(const ZZ& n, long t)
 {
-	ZZ num;
-	num = abs(n);
-	str[len--] = '\0';
-	do {
-		str[len--] = '0' + (char)(num % 10);
-		num /= 10;
-	} while (num != 0);
-	if (n < 0)str[0] = '-';
+	if (n <= 1)return 0;
+	PrimeSeq s;
+	long p;
+	p = s.next();
+	while (p&&p<10000)
+	{// 小さい素数で割ってみる
+		if ((n%p) == 0)return(n == p);
+		p = s.next();
+	}
+	// Miller-Rabinテストをt回実行
+	ZZ x;
+	long i;
+	for (i = 0; i<t; i++)
+	{
+		x = RandomBnd(n);//0からn-1までのランダムな数
+		if (witness(n, x))
+			return 0;
+	}
+	return 1;
 }
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+	static HWND hEdit1;
 	static HWND hButton;
 	switch (msg)
 	{
 	case WM_CREATE:
+		hEdit1 = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("EDIT"),
+			TEXT("2519590847565789349402718324004839857142928212")
+			TEXT("6204032027777137836043662020707595556264018525")
+			TEXT("8807844069182906412495150821892985591491761845")
+			TEXT("0280848912007284499268739280728777673597141834")
+			TEXT("7270261896375014971824691165077613379859095700")
+			TEXT("0973304597488084284017974291006424586918171951")
+			TEXT("1874612151517265463228221686998754918242243363")
+			TEXT("7259085141865462043576798423387184774447920739")
+			TEXT("9342365848238242811981638150106748104516603773")
+			TEXT("0605620161967625613384414360383390441495263443")
+			TEXT("2190114657544454178424020924616515723350778707")
+			TEXT("7498171257724679629263863563732899121548314381")
+			TEXT("6789988504044536402352738195137863656439121201")
+			TEXT("0397122822120720357"),
+			WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_VSCROLL | ES_NUMBER | ES_MULTILINE | ES_AUTOVSCROLL,
+			80, 10, 512, 64, hWnd, 0, ((LPCREATESTRUCT)lParam)->hInstance, 0);
 		hButton = CreateWindow(TEXT("BUTTON"), TEXT("計算"), WS_VISIBLE | WS_CHILD, 0, 0, 0, 0, hWnd, (HMENU)IDOK, ((LPCREATESTRUCT)lParam)->hInstance, 0);
 		break;
 	case WM_SIZE:
-		MoveWindow(hButton, 10, 10, 256, 32, TRUE);
+		MoveWindow(hEdit1, 10, 10, 512, 512, TRUE);
+		MoveWindow(hButton, 10, 20 + 512, 256, 32, TRUE);
 		break;
 	case WM_COMMAND:
 		if (LOWORD(wParam) == IDOK)
 		{
-			ZZ a = to_ZZ("123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890");
-			ZZ b = to_ZZ("112233445566778899001122334455667788990011223344556677889900112233445566778899001122334455667788990011223344556677889900");
-			char str[1000];
-			a *= b;
-			zztostr(a, str, len(a));
-			MessageBoxA(hWnd, str, 0, 0);
+			ZZ n;
+			int len = GetWindowTextLength(hEdit1) + 1;
+			LPSTR str = (LPSTR)GlobalAlloc(GMEM_FIXED, len);
+			GetWindowTextA(hEdit1, str, len);
+			conv(n, str);
+			GlobalFree(str);
+			if (PrimeTest(n, 10))
+			{
+				MessageBox(
+					hWnd,
+					TEXT("素数の可能性があります。"),
+					TEXT("確認"),
+					0);
+			}
+			else
+			{
+				MessageBox(
+					hWnd,
+					TEXT("合成数です。"),
+					TEXT("確認"),
+					0);
+			}
 		}
 		break;
 	case WM_DESTROY:
