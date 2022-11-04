@@ -14,7 +14,7 @@
 #endif
 #endif
 
-#include "WinNTL-9_8_1\include\NTL\ZZ.h"
+#include "WinNTL\include\NTL\ZZ.h"
 #include <windows.h>
 
 using namespace NTL;
